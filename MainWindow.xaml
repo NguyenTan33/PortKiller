@@ -1,0 +1,139 @@
+<Window x:Class="PortKiller.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PortKiller - Diệt Tiến Trình Ngầm &amp; Cổng Port Chiếm Dụng" 
+        Height="720" Width="1180"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BgDark}"
+        Foreground="{StaticResource TextMain}"
+        KeyDown="Window_KeyDown">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <!-- Top Controls Bar -->
+            <RowDefinition Height="Auto"/>
+            <!-- Main DataGrid Results -->
+            <RowDefinition Height="*"/>
+            <!-- Footer Status -->
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- TOP CONTROLS BAR -->
+        <Border Grid.Row="0" Background="{StaticResource BgCard}" CornerRadius="8" Padding="12" Margin="0,0,0,10" BorderBrush="{StaticResource BorderDark}" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <!-- Quick Kill Port Row -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Search & Mass Kill Row -->
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- ROW 1: QUICK KILL PORT INPUT & PRESETS -->
+                <Grid Grid.Row="0" Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="🎯 Diệt Nhanh Theo Cổng Port:" VerticalAlignment="Center" Foreground="{StaticResource TextMain}" FontWeight="Bold" Margin="0,0,8,0"/>
+                        <TextBox x:Name="TxtTargetPort" Width="90" Text="3000" Margin="0,0,8,0" KeyDown="TxtTargetPort_KeyDown" ToolTip="Nhập số cổng port cần diệt (Ví dụ: 3000, 8080, 5000)"/>
+                        <Button x:Name="BtnKillTargetPort" Content="⚡ Kill Port Trực Tiếp" Click="BtnKillTargetPort_Click" Background="{StaticResource DangerAccent}" Margin="0,0,16,0"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="Nút diệt nhanh Web Dev:" VerticalAlignment="Center" Foreground="{StaticResource TextMuted}" Margin="0,0,8,0" FontSize="12"/>
+                        <Button Content="⚡ Port 3000" Click="BtnQuickKill3000_Click" Style="{StaticResource SecondaryButton}" Margin="0,0,6,0"/>
+                        <Button Content="⚡ Port 5000" Click="BtnQuickKill5000_Click" Style="{StaticResource SecondaryButton}" Margin="0,0,6,0"/>
+                        <Button Content="⚡ Port 5173" Click="BtnQuickKill5173_Click" Style="{StaticResource SecondaryButton}" Margin="0,0,6,0"/>
+                        <Button Content="⚡ Port 8080" Click="BtnQuickKill8080_Click" Style="{StaticResource SecondaryButton}" Margin="0,0,6,0"/>
+                    </StackPanel>
+                </Grid>
+
+                <Separator Grid.Row="0" VerticalAlignment="Bottom" Background="{StaticResource BorderDark}" Margin="0,0,0,0"/>
+
+                <!-- ROW 2: SEARCH & MASS KILL BUTTONS -->
+                <Grid Grid.Row="1" Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="280"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Search Box -->
+                    <Grid Grid.Column="0" Margin="0,0,12,0">
+                        <TextBox x:Name="TxtSearch" TextChanged="TxtSearch_TextChanged" 
+                                 Padding="28,7,28,7" FontSize="13" ToolTip="Gõ Port, tên tiến trình (node, dotnet...) hoặc PID để lọc (Ctrl+F)"/>
+                        <TextBlock Text="🔍" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="8,0,0,0" Foreground="{StaticResource TextMuted}" IsHitTestVisible="False"/>
+                        <Button x:Name="BtnClearSearch" Content="✖" HorizontalAlignment="Right" VerticalAlignment="Center" 
+                                Margin="0,0,6,0" Width="18" Height="18" Padding="0" Background="Transparent" 
+                                Foreground="{StaticResource TextMuted}" Click="BtnClearSearch_Click" Style="{StaticResource SecondaryButton}" BorderThickness="0"/>
+                    </Grid>
+
+                    <!-- Mass Kill Shortcuts -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="💀 Diệt Tất Cả Node.js" Click="BtnKillAllNode_Click" Background="#DC2626" Margin="0,0,6,0" ToolTip="Diệt sạch các tiến trình node.exe đang chạy ngầm"/>
+                        <Button Content="💀 Diệt Tất Cả Dotnet" Click="BtnKillAllDotnet_Click" Background="#DC2626" Margin="0,0,6,0" ToolTip="Diệt sạch các tiến trình dotnet.exe đang chạy ngầm"/>
+                        <Button Content="💀 Diệt Tất Cả Python" Click="BtnKillAllPython_Click" Background="#DC2626" Margin="0,0,6,0" ToolTip="Diệt sạch các tiến trình python.exe đang chạy ngầm"/>
+                    </StackPanel>
+
+                    <!-- Refresh Button -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button x:Name="BtnRefresh" Content="🔄 Quét Lại (F5)" Click="BtnRefresh_Click" Style="{StaticResource SecondaryButton}"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- RESULTS DATAGRID -->
+        <Border Grid.Row="1" Background="{StaticResource BgCard}" CornerRadius="8" Padding="1" BorderBrush="{StaticResource BorderDark}" BorderThickness="1">
+            <Grid>
+                <DataGrid x:Name="GridResults" AutoGenerateColumns="False" IsReadOnly="True"
+                          MouseDoubleClick="GridResults_MouseDoubleClick"
+                          LoadingRow="GridResults_LoadingRow">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header=" " Binding="{Binding IconKind}" Width="35"/>
+                        <DataGridTextColumn Header="Cổng (Port)" Binding="{Binding Port}" Width="90" FontWeight="Bold"/>
+                        <DataGridTextColumn Header="Tiến Trình (Process)" Binding="{Binding ProcessName}" Width="160" FontWeight="SemiBold"/>
+                        <DataGridTextColumn Header="PID" Binding="{Binding Pid}" Width="80"/>
+                        <DataGridTextColumn Header="Bộ Nhớ RAM" Binding="{Binding FormattedMemory}" Width="110"/>
+                        <DataGridTextColumn Header="Trạng Thái" Binding="{Binding State}" Width="110"/>
+                        <DataGridTextColumn Header="Giao Thức" Binding="{Binding Protocol}" Width="80"/>
+                        <DataGridTextColumn Header="Địa Chỉ (Local Address)" Binding="{Binding LocalAddress}" Width="160"/>
+                        <DataGridTextColumn Header="Đường Dẫn File Thực Thi (Path)" Binding="{Binding ExecutablePath}" Width="*"/>
+                    </DataGrid.Columns>
+                    <DataGrid.ContextMenu>
+                        <ContextMenu Background="{StaticResource BgHeader}" Foreground="{StaticResource TextMain}">
+                            <MenuItem Header="💀 Diệt Tiến Trình Này (Kill PID)" Click="MenuKillProcess_Click"/>
+                            <MenuItem Header="📂 Mở Thư Mục Chứa Tiến Trình" Click="MenuOpenFolder_Click"/>
+                            <Separator Background="{StaticResource BorderDark}"/>
+                            <MenuItem Header="📋 Copy Cổng Port" Click="MenuCopyPort_Click"/>
+                            <MenuItem Header="📋 Copy Mã PID" Click="MenuCopyPid_Click"/>
+                            <MenuItem Header="📋 Copy Đường Dẫn File" Click="MenuCopyPath_Click"/>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+                </DataGrid>
+
+                <!-- Loading Spinner Overlay -->
+                <Border x:Name="OverlayScanning" Background="#AA111827" Visibility="Collapsed" IsHitTestVisible="False">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Text="⏳ Đang quét danh sách Port &amp; Tiến trình..." FontSize="15" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- FOOTER STATUS BAR -->
+        <Border Grid.Row="2" Background="{StaticResource BgCard}" CornerRadius="6" Padding="10,6" Margin="0,8,0,0" BorderBrush="{StaticResource BorderDark}" BorderThickness="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock x:Name="TxtStatus" Text="Sẵn sàng. Bấm '⚡ Kill Port Trực Tiếp' hoặc chọn dòng để diệt tiến trình chiếm port." Foreground="{StaticResource TextMuted}" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Text="💡 Mẹo: Double-click dòng để Kill PID | F5 để nạp lại | Ctrl+F tìm kiếm" Foreground="#60A5FA" VerticalAlignment="Center" FontSize="11.5"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

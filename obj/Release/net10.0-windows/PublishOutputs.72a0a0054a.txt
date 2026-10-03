@@ -1,0 +1,5 @@
+D:\Tool\PortKiller\App\PortKiller.exe
+D:\Tool\PortKiller\App\PortKiller.dll
+D:\Tool\PortKiller\App\PortKiller.deps.json
+D:\Tool\PortKiller\App\PortKiller.runtimeconfig.json
+D:\Tool\PortKiller\App\PortKiller.pdb
